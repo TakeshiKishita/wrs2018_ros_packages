@@ -1,19 +1,49 @@
 #!/usr/bin/env python
 
 import rospy
-import joy_control.leg_control
+from joy_control.leg_control import drive_control
 from sensor_msgs.msg import Joy
 from logging import getLogger
 
 logger = getLogger(__name__)
 print("start")
+
+
 class sub_joy(object):
     def __init__(self):
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
+        self.drive_channel = {"l_f": [8, 9],
+                              "l_b": [10, 11],
+                              "r_f": [12, 13],
+                              "r_b": [14, 15]}
+        self.front_channel = [8, 10, 12, 14]
+        self.back_channel = [9, 11, 13, 15]
+        self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
+
     def joy_callback(self, joy_msg):
-        print(joy_msg)
         if joy_msg.buttons[5] == 1:
-            print("[R1] ON")
+
+            dc = drive_control()
+            y_axis_left = joy_msg.axes[1]
+            y_axis_right = joy_msg.axes[4]
+            logger.debug("y_axis_left: {}".format(y_axis_left))
+            logger.debug("y_axis_right: {}".format(y_axis_right))
+            try:
+                if y_axis_left >= 0:
+                    ret = dc.drive_control(self.front_channel[:2], y_axis_left)
+                elif y_axis_left < 0:
+                    ret = dc.drive_control(self.back_channel[:2], abs(y_axis_left))
+
+                if y_axis_right >= 0:
+                    ret = dc.drive_control(self.front_channel[2:], y_axis_right)
+                elif y_axis_right < 0:
+                    ret = dc.drive_control(self.back_channel[2:], abs(y_axis_right))
+
+                if not ret:
+                    raise Exception("joy_callback　error")
+            except Exception as e:
+                logger.exception(e)
+
 
 if __name__ == "__main__":
     rospy.init_node('joy_test')
