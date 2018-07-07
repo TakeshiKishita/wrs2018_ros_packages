@@ -78,19 +78,15 @@ class joint_control(object):
                           "angle_max": self.angle_max,
                           "period_width": self.period_width}
                 ret = common.i2c_angle_control(self.leg_top_channel, top_angle, logger=logger,
-                        **params) if ret else False
+                                               **params) if ret else False
                 ret = common.i2c_angle_control(self.leg_bottom_channel, bottom_angle, logger=logger,
-                    **params) if ret else False
+                                               **params) if ret else False
         else:
             ret = False
         return ret
 
 
-if __name__ == '__main__':
-    """
-    デバッグ用
-    コマンドラインから直接呼び出し、一定の角度に調整
-    """
+class drive_control(object):
     def __init__(self):
         self.drive_channel = {"l_f": [8, 9],
                               "l_b": [10, 11],
@@ -102,7 +98,7 @@ if __name__ == '__main__':
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(self.period_width)
 
-    def drive_control(self, channel_list, duty_cycle=1.0, logger=None):
+    def morter_driver_control(self, channel_list, duty_cycle=1.0, logger=None):
         """
         個別の駆動系の制御
         :param channel_list:

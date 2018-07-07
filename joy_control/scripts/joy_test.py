@@ -30,17 +30,17 @@ class sub_joy(object):
             logger.debug("y_axis_right: {}".format(y_axis_right))
             try:
                 if y_axis_left >= 0:
-                    ret = dc.drive_control(self.front_channel[:2], y_axis_left)
+                    ret = dc.morter_driver_control(self.front_channel[:2], y_axis_left)
                 elif y_axis_left < 0:
-                    ret = dc.drive_control(self.back_channel[:2], abs(y_axis_left))
+                    ret = dc.morter_driver_control(self.back_channel[:2], abs(y_axis_left))
 
                 if y_axis_right >= 0:
-                    ret = dc.drive_control(self.front_channel[2:], y_axis_right)
+                    ret = dc.morter_driver_control(self.front_channel[2:], y_axis_right)
                 elif y_axis_right < 0:
-                    ret = dc.drive_control(self.back_channel[2:], abs(y_axis_right))
+                    ret = dc.morter_driver_control(self.back_channel[2:], abs(y_axis_right))
 
                 if not ret:
-                    raise Exception("joy_callback　error")
+                    raise Exception("joy_callback error")
             except Exception as e:
                 logger.exception(e)
 
