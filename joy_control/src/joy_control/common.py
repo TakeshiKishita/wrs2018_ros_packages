@@ -56,7 +56,8 @@ def i2c_duty_control(pwm, channel_list, period_width, duty_cycle=1, logger=None)
         # パルス幅 = 4096 / 周波数(ms) * デューティ比
         pulse_width = 4096 / (1000 / period_width) * duty_cycle
         for channel in channel_list:
-            pwm.set_pwm(channel, 0, pulse_width)
+            print("pulse_width: {}".format(pulse_width))
+            pwm.set_pwm(channel, 0, int(pulse_width))
         return True
     except Exception as e:
         logger.error(e)

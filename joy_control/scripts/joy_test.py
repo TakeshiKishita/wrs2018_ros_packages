@@ -4,9 +4,11 @@ import rospy
 from joy_control.leg_control import drive_control
 from sensor_msgs.msg import Joy
 from logging import getLogger
-
 logger = getLogger(__name__)
+
 print("start")
+logger.info("logging.config")
+rospy.loginfo("rospy.loginfo")
 
 
 class sub_joy(object):
@@ -22,27 +24,30 @@ class sub_joy(object):
 
     def joy_callback(self, joy_msg):
         if joy_msg.buttons[5] == 1:
+            print("[R1] pushed")
 
             dc = drive_control()
             y_axis_left = joy_msg.axes[1]
-            y_axis_right = joy_msg.axes[4]
-            logger.debug("y_axis_left: {}".format(y_axis_left))
-            logger.debug("y_axis_right: {}".format(y_axis_right))
+            y_axis_right = joy_msg.axes[5]
+            print("y_axis_left: {}".format(y_axis_left))
+            print("y_axis_right: {}".format(y_axis_right))
             try:
-                if y_axis_left >= 0:
-                    ret = dc.morter_driver_control(self.front_channel[:2], y_axis_left)
-                elif y_axis_left < 0:
+                if y_axis_left >= 0.0:
+                    ret = dc.morter_driver_control(self.front_channel[:2], abs(y_axis_left))
+                elif y_axis_left < 0.0:
                     ret = dc.morter_driver_control(self.back_channel[:2], abs(y_axis_left))
 
-                if y_axis_right >= 0:
-                    ret = dc.morter_driver_control(self.front_channel[2:], y_axis_right)
-                elif y_axis_right < 0:
+                if y_axis_right >= 0.0:
+                    ret = dc.morter_driver_control(self.front_channel[2:], abs(y_axis_right))
+                elif y_axis_right < 0.0:
                     ret = dc.morter_driver_control(self.back_channel[2:], abs(y_axis_right))
-
                 if not ret:
                     raise Exception("joy_callback error")
             except Exception as e:
-                logger.exception(e)
+                import traceback
+                traceback.print_exc()
+                logger.exception("ERROR: ".format(e))
+                print("[error]: {}".format(e.args))
 
 
 if __name__ == "__main__":

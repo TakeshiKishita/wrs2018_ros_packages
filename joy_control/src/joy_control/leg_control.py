@@ -94,7 +94,7 @@ class drive_control(object):
                               "r_b": [14, 15]}
         self.front_channel = [8, 10, 12, 14]
         self.back_channel = [9, 11, 13, 15]
-        self.period_width = 50  # 周期幅Hz
+        self.period_width = 50.0  # 周期幅Hz
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(self.period_width)
 
