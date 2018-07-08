@@ -14,12 +14,18 @@ rospy.loginfo("rospy.loginfo")
 class sub_joy(object):
     def __init__(self):
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
+        #self.drive_channel = {"r_f": [8, 9],
+        #                      "l_f": [10, 11],
+        #                      "r_b": [12, 13],
+        #                      "l_b": [14, 15]}
+        #self.front_channel = [8, 10, 12, 14]
+        #self.back_channel = [9, 11, 13, 15]
         self.drive_channel = {"l_f": [8, 9],
-                              "l_b": [10, 11],
-                              "r_f": [12, 13],
+                              "r_f": [10, 11],
+                              "l_b": [12, 13],
                               "r_b": [14, 15]}
-        self.front_channel = [8, 10, 12, 14]
-        self.back_channel = [9, 11, 13, 15]
+        self.back_channel = [8, 12, 10, 14]
+        self.front_channel = [9, 13, 11, 15]
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
 
     def joy_callback(self, joy_msg):

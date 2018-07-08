@@ -30,7 +30,7 @@ def i2c_angle_control(channel_list, angle, logger=None, **param):
     try:
         # パルス幅 = 4096 / 周波数(ms) * デューティ比
         duty_cycle = param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]
-        pulse_width = int(4096 / (1000 / param["period_width"]) * duty_cycle)
+        pulse_width = int(param["period_width"] * duty_cycle)
         logger.info("pulse_width:{}".format(pulse_width))
         for channel in channel_list:
             param["pwm"].set_pwm(channel, 0, pulse_width)
@@ -54,7 +54,7 @@ def i2c_duty_control(pwm, channel_list, period_width, duty_cycle=1, logger=None)
     logger = logger or _logger
     try:
         # パルス幅 = 4096 / 周波数(ms) * デューティ比
-        pulse_width = 4096 / (1000 / period_width) * duty_cycle
+        pulse_width = (4000) * duty_cycle
         for channel in channel_list:
             print("pulse_width: {}".format(pulse_width))
             pwm.set_pwm(channel, 0, int(pulse_width))
