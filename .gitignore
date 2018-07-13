@@ -57,4 +57,4 @@ docs/_build/
 target/
 
 # ROS
-./CMakeLists.txt
+/CMakeLists.txt
