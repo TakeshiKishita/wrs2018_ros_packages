@@ -2,7 +2,7 @@
 # coding=utf-8
 
 import rospy
-from joy_control.leg_control import drive_control
+from joy_control.leg_control import DriveControl
 from sensor_msgs.msg import Joy
 from logging import getLogger
 logger = getLogger(__name__)
@@ -12,7 +12,7 @@ logger.info("logging.config")
 rospy.loginfo("rospy.loginfo")
 
 
-class SubJoy:
+class SubJoy(object):
     def __init__(self):
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
 
@@ -26,7 +26,8 @@ class SubJoy:
         if joy_msg.buttons[5] == 1:
             print("[R1] pushed")
 
-            dc = drive_control()
+            dc = DriveControl()
+            ret = True
             # 左右スティックの値取得
             y_axis_left = joy_msg.axes[1]
             y_axis_right = joy_msg.axes[5]
@@ -53,3 +54,9 @@ class SubJoy:
         elif joy_msg.buttons[5] == 1:
             # 同時操作できないようelif
             print("[R1] pushed")
+
+
+if __name__ == "__main__":
+    rospy.init_node("joy_control")
+    joy_control = SubJoy()
+    rospy.spin()
