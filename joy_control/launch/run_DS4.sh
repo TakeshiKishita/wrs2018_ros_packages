@@ -12,6 +12,6 @@ fi
 export ROS_IP=$1
 # コントローラドライバ起動
 sudo ds4drv &
-roslaunch ~/catkin_ws/src/joy_control/launch/joy_control.launch
+roslaunch joy_control joy_control.launch
 
 exit 0
