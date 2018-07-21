@@ -14,4 +14,3 @@ export ROS_IP=$1
 sudo ds4drv &
 roslaunch joy_control joy_control.launch
 
-exit 0

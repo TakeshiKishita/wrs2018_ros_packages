@@ -54,9 +54,10 @@ def i2c_duty_control(pwm, channel_list, duty_cycle=1.0, logger=None):
     logger = logger or _logger
     try:
         # パルス幅 = 4096 * デューティ比
-        pulse_width = int(4096 * duty_cycle)
+        # pulse_width = int(4096 * duty_cycle)
+        pulse_width = 2000
         for channel in channel_list:
-            print("pulse_width: {}".format(pulse_width))
+            print("[i2c_duty_control] pulse_width: {}".format(pulse_width))
             pwm.set_pwm(channel, 0, int(pulse_width))
         return True
     except Exception as e:
@@ -193,7 +194,7 @@ class DriveControl:
                               "r_b": [14, 15]}
         self.front_channel = [8, 10, 12, 14]
         self.back_channel = [9, 11, 13, 15]
-        self.period_width = 100000  # 周期幅Hz
+        self.period_width = 1000  # 周期幅Hz
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(self.period_width)
 
