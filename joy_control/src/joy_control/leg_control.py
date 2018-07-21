@@ -64,45 +64,34 @@ def i2c_duty_control(pwm, channel_list, duty_cycle=1.0, logger=None):
         return False
 
 
-def check_angle(angle, position="default", logger=None):
-    """
-    角度チェック
-    :param angle: 角度
-    :param position: サーボ位置
-    :param logger:
-    :return:
-    """
-    logger = logger or _logger
-    logger.debug("check_angle")
-    if position == "default" and 0 <= angle <= 90:
-        pass
-    elif position == "top" and 0 < angle <= 180:
-        pass
-    else:
-        logger.error("position:{} に設定した角度は適切ではありません。".format(position))
-        return False
-    return True
-
-
 class JointControl(object):
     """
     脚関節制御
     """
 
-    def __init__(self):
-        self.drive_channel = {"l_f": [8, 9],
-                              "r_f": [10, 11],
-                              "l_b": [12, 13],
-                              "r_b": [14, 15]}
-        self.back_channel = [8, 12, 10, 14]
-        self.front_channel = [9, 13, 11, 15]
-        self.dc_min = 0.4  # 最小パルス幅msec
+    def __init__(self, logger=None):
+        self.leg_channel = {"r_f": [0, 1],
+                            "l_f": [2, 3],
+                            "r_b": [4, 5],
+                            "l_b": [6, 7]}
+        self.leg_top_channel = [0, 2, 4, 6]
+        self.leg_bottom_channel = [1, 3, 5, 7]
+        self.dc_min = 0.5  # 最小パルス幅msec
         self.dc_max = 2.5  # 最大パルス幅msec
         self.angle_max = 180  # 最大角（最小を０とした場合）degrees
-        self.pwm_period = 50  # 周期幅Hz
+        self.period_width = 50  # 周期幅Hz
         self.logger = _logger
         self.pwm = Adafruit_PCA9685.PCA9685()
-        self.pwm.set_pwm_freq(self.pwm_period)
+        self.pwm.set_pwm_freq(self.period_width)
+
+        self.logger = getLogger("__name__")
+        self.handler = StreamHandler()
+        self.handler.setLevel(DEBUG)
+        self.logger.setLevel(DEBUG)
+        self.logger.addHandler(handler)
+        self.logger.propagate = False
+
+        self.logger = logger or self.logger
 
     def i2c_angle_control(self, channel_list, angle):
         """
@@ -114,44 +103,82 @@ class JointControl(object):
         try:
             # パルスの終点設定
             pulse_width = int((self.dc_min + (self.dc_max - self.dc_min) * angle / self.angle_max) * 4096 / (
-                    1000 / self.pwm_period))
-            _logger.info("pulse_width:{}".format(pulse_width))
+                    1000 / self.period_width))
+            self.logger.info("pulse_width:{}".format(pulse_width))
             for channel in channel_list:
                 self.pwm.set_pwm(channel, 0, pulse_width)
-            _logger.info("channels:{}, pulse_width:{}".format(str(channel_list), pulse_width))
+                self.logger.info("channels:{}, pulse_width:{}".format(str(channel_list), pulse_width))
             return True
 
         except Exception as e:
-            _logger.error(e)
+            self.logger.error(e)
             return False
 
-    def all_leg_control(self, top_angle, bottom_angle, logger=None):
+    def all_leg_control(self, top_angle, bottom_angle):
         """
         すべての脚を同時に制御する。
         :param top_angle: 脚上関節サーボ角度
         :param bottom_angle: 脚下関節サーボ角度
-        :param logger:
         :return bool:
         """
-        logger = logger or _logger
-
-        logger.debug("all_leg_control")
+        self.logger.debug("all_leg_control")
         ret = True
-        logger.debug("top:{}, bottom:{}".format(top_angle, bottom_angle))
-        if check_angle(top_angle, "top"):
-            if check_angle(bottom_angle):
+        self.logger.debug("top:{}, bottom:{}".format(top_angle, bottom_angle))
+        if self.check_angle(top_angle, self.leg_top_channel):
+            if self.check_angle(bottom_angle, self.leg_bottom_channel):
                 params = {"pwm": self.pwm,
                           "dc_min": self.dc_min,
                           "dc_max": self.dc_max,
                           "angle_max": self.angle_max,
                           "period_width": self.period_width}
-                ret = i2c_angle_control(self.leg_top_channel, top_angle, logger=logger,
+                ret = i2c_angle_control(self.leg_top_channel, top_angle, logger=self.logger,
                                         **params) if ret else False
-                ret = i2c_angle_control(self.leg_bottom_channel, bottom_angle, logger=logger,
+                ret = i2c_angle_control(self.leg_bottom_channel, bottom_angle, logger=self.logger,
                                         **params) if ret else False
         else:
             ret = False
         return ret
+
+    def leg_channel_control(self, angle, channel_list):
+        """
+        チャンネル毎に角度を制御する
+        :param angle: サーボ角度
+        :param channel_list: 対象チャンネル
+        :return bool:
+        """
+
+        self.logger.debug("leg_channel_control")
+        ret = True
+        self.logger.debug("angle:{}".format(angle))
+        if self.check_angle(angle, channel_list):
+            params = {"pwm": self.pwm,
+                      "dc_min": self.dc_min,
+                      "dc_max": self.dc_max,
+                      "angle_max": self.angle_max,
+                      "period_width": self.period_width}
+            ret = i2c_angle_control(self.leg_top_channel, angle, logger=self.logger,
+                                    **params) if ret else False
+        else:
+            ret = False
+        return ret
+
+    def check_angle(self, angle, channel_list):
+        """
+        角度チェック
+        :param angle: 角度
+        :param channel_list: チャンネルリスト
+        :return:
+        """
+        channel_set = set(channel_list)
+        self.logger.debug("check_angle")
+        if len(list(channel_set & set(self.leg_bottom_channel))) > 0 and 0 <= angle <= 90:
+            pass
+        elif len(list(channel_set & set(self.leg_top_channel))) > 0 and 90 <= angle <= 180:
+            pass
+        else:
+            self.logger.error("position:{} に設定した角度{}度は適切ではありません。".format(channel_list, angle))
+            return False
+        return True
 
 
 class DriveControl:
@@ -170,7 +197,7 @@ class DriveControl:
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(self.period_width)
 
-    def morter_driver_control(self, channel_list, duty_cycle=1.0, logger=None):
+    def motor_driver_control(self, channel_list, duty_cycle=1.0, logger=None):
         """
         個別の駆動系の制御
         :param channel_list:

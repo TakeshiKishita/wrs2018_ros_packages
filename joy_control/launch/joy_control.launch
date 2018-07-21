@@ -1,4 +1,3 @@
 <launch>
     <node pkg="joy" name="joy_node" type="joy_node"/>
-    <node pkg="joy_control" name="joy_control" type="joy_test.py"/>
 </launch>
