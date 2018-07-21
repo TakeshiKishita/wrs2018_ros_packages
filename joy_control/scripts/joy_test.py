@@ -11,10 +11,15 @@ print("start")
 logger.info("logging.config")
 rospy.loginfo("rospy.loginfo")
 
+# クラス初期化
+dc = DriveControl()
+jc = JointControl()
+dc.motor_driver_control(dc.back_channel, abs(0))
+dc.motor_driver_control(dc.front_channel, abs(0))
 
 class SubJoy(object):
     def __init__(self):
-        self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=1)
+        self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=100)
         self.top_angle = 135
         self.bottom_angle = 45
 
@@ -32,8 +37,8 @@ class SubJoy(object):
         :return:
         """
         # クラス初期化
-        dc = DriveControl()
-        jc = JointControl()
+        # dc = DriveControl()
+        # jc = JointControl()
 
         # 左右スティックの値取得
         y_axis_left = joy_msg.axes[1]
@@ -52,14 +57,18 @@ class SubJoy(object):
             print("y_axis_right: {}".format(y_axis_right))
             try:
                 if y_axis_left >= 0.0:
-                    ret = dc.motor_driver_control(dc.front_channel[:2], abs(y_axis_left))
+                    dc.motor_driver_control(dc.back_channel[2:], abs(0))
+                    ret = dc.motor_driver_control(dc.front_channel[2:], abs(y_axis_left))
                 elif y_axis_left < 0.0:
-                    ret = dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_left))
+                    dc.motor_driver_control(dc.front_channel[2:], abs(0))
+                    ret = dc.motor_driver_control(dc.back_channel[2:], abs(y_axis_left))
 
                 if y_axis_right >= 0.0:
-                    ret = dc.motor_driver_control(dc.front_channel[2:], abs(y_axis_right))
+                    dc.motor_driver_control(dc.back_channel[:2], abs(0))
+                    ret = dc.motor_driver_control(dc.front_channel[:2], abs(y_axis_right))
                 elif y_axis_right < 0.0:
-                    ret = dc.motor_driver_control(dc.back_channel[2:], abs(y_axis_right))
+                    dc.motor_driver_control(dc.front_channel[:2], abs(0))
+                    ret = dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_right))
                 if not ret:
                     raise Exception()
             except Exception as e:
@@ -86,7 +95,8 @@ class SubJoy(object):
 
         else:
             # ボタンを離したら止める
-            dc.motor_driver_control(dc.back_channel[2:], abs(0))
+            dc.motor_driver_control(dc.back_channel, abs(0))
+            dc.motor_driver_control(dc.front_channel, abs(0))
 
 
 if __name__ == "__main__":
