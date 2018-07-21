@@ -12,7 +12,5 @@ fi
 export ROS_IP=$1
 # master側のIPを指定
 export ROS_MASTER_URI=http://$2:11311
-echo http://$2:11311
-exit 0
 # コントロールスクリプトの実行
 rosrun joy_control joy_test.py
