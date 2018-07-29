@@ -28,7 +28,6 @@ def i2c_angle_control(channel_list, angle, **param):
             (param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]) * 4096 / (
                     1000 / param["period_width"]))
         logger.info("pulse_width:{}".format(pulse_width))
-        logger.debug("angle pulse_width", pulse_width)
         for channel in channel_list:
             param["pwm"].set_pwm(channel, 0, pulse_width)
         return True
