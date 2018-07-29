@@ -8,6 +8,8 @@ import Adafruit_PCA9685
 from logging import getLogger
 logger = getLogger("__name__")
 
+PULSE_12bit = 4000
+
 
 def i2c_angle_control(channel_list, angle, **param):
     """
@@ -42,7 +44,7 @@ def i2c_duty_control(pwm, channel_list, duty_cycle=1.0):
     """
     try:
         # パルス幅 = 4096 * デューティ比
-        pulse_width = int(4096 * duty_cycle)
+        pulse_width = int(PULSE_12bit * duty_cycle)
         for channel in channel_list:
             print("[i2c_duty_control] pulse_width: {}".format(pulse_width))
             pwm.set_pwm(channel, 0, int(pulse_width))
@@ -70,27 +72,6 @@ class JointControl(object):
 
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(self.period_width)
-
-    def i2c_angle_control(self, channel_list, angle):
-        """
-        Adafruit_PCA96851ドライバを使用し、任意のチェンネルのpwmを指定する
-        :param channel_list: ドライバのチャンネル番号
-        :param angle: 指定角度
-        :return bool:
-        """
-        try:
-            # パルスの終点設定
-            pulse_width = int((self.dc_min + (self.dc_max - self.dc_min) * angle / self.angle_max) * 4096 / (
-                    1000 / self.period_width))
-            logger.info("pulse_width:{}".format(pulse_width))
-            for channel in channel_list:
-                self.pwm.set_pwm(channel, 0, pulse_width)
-                logger.info("channels:{}, pulse_width:{}".format(str(channel_list), pulse_width))
-            return True
-
-        except Exception as e:
-            logger.error(e)
-            return False
 
     def all_leg_control(self, top_angle, bottom_angle):
         """
