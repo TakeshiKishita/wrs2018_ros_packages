@@ -39,12 +39,12 @@ class SubJoy(object):
         y_axis_left = joy_msg.axes[1]
         y_axis_right = joy_msg.axes[5]
         # ボタンの値取得
-        l1_button = joy_msg.buttons[4]
-        r1_button = joy_msg.buttons[5]
+        button_l1 = joy_msg.buttons[4]
+        button_r1 = joy_msg.buttons[5]
         circle_button = joy_msg.buttons[2]
 
         # 駆動系制御
-        if r1_button == 1:
+        if button_r1 == 1:
             logger.debug("[R1] pushed")
 
             ret = True
@@ -68,17 +68,17 @@ class SubJoy(object):
                     raise Exception()
             except Exception as e:
                 traceback.print_exc()
-                logger.error("joy_callback, {}".format(e.args))
+                logger.error(e.args)
 
         # 足関節系制御
-        elif l1_button == 1:
+        elif button_l1 == 1:
             # 同時操作できないようelif
             logger.debug("[L1] pushed")
             try:
                 if circle_button == 1:
                     # ○ボタンが押された場合、ホームポジションに戻る
-                    jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
-                    jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel)
+                    ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
+                    ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
                 else:
                     self.top_angle = self.top_angle + y_axis_right if (0 <= self.top_angle <= TOP_MAX_ANGLE) else self.top_angle
                     ret = jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
@@ -91,9 +91,9 @@ class SubJoy(object):
             except Exception as e:
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
                 traceback.print_exc()
-                logger.error("joy_callback, {}".format(e.args))
+                logger.error(e.args)
 
-        else:
+        if button_r1 != 1:
             # ボタンを離したらDCモータを止める
             dc.motor_driver_control(dc.back_channel, abs(0))
             dc.motor_driver_control(dc.front_channel, abs(0))
@@ -106,5 +106,6 @@ if __name__ == "__main__":
         rospy.spin()
     except Exception as e:
         # 全てのPWMを初期化する
+        logger.error(e.args)
         dc.pwm.set_all_pwm(0, 0)
         jc.pwm.set_all_pwm(0, 0)
