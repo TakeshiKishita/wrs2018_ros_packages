@@ -54,7 +54,7 @@ def i2c_duty_control(pwm, channel_list, duty_cycle=1.0):
         return False
 
 
-class JointControl(object):
+class JointControl:
     """
     脚関節制御
     """
