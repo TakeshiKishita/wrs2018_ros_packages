@@ -166,11 +166,8 @@ class DriveControl:
 
 
 if __name__ == "__main__":
+    jc = JointControl()
     try:
-
-        jc = JointControl()
-        TOP_MAX_ANGLE = 180
-        BOTTOM_MAX_ANGLE = 90
         TOP_HOME_ANGLE = 135
         BOTTOM_HOME_ANGLE = 45
         ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
@@ -179,5 +176,4 @@ if __name__ == "__main__":
     except Exception as e:
         # 全てのPWMを初期化する
         logger.error(e.args)
-        dc.pwm.set_all_pwm(0, 0)
         jc.pwm.set_all_pwm(0, 0)
