@@ -16,12 +16,14 @@ logger.setLevel(DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
 logger.info("START")
-
 # クラス初期化
 dc = DriveControl()
 jc = JointControl()
 dc.motor_driver_control(dc.drive_channel, abs(0))
 dc.motor_driver_control(dc.back_channel, abs(0))
+
+rate = rospy.Rate(1)
+
 TOP_MAX_ANGLE = 180
 BOTTOM_MAX_ANGLE = 90
 TOP_HOME_ANGLE = 135
@@ -86,11 +88,12 @@ class SubJoy(object):
                     ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
                 else:
-                    self.top_angle = self.top_angle + y_axis_right if (0 <= self.top_angle <= TOP_MAX_ANGLE) else self.top_angle
-                    ret = jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
+                    if abs(y_axis_right) > 0:
+                        self.top_angle = self.top_angle + 5 if (0 <= self.top_angle <= TOP_MAX_ANGLE) else self.top_angle
+                        ret = jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
 
-                    self.top_angle = self.top_angle - y_axis_right if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
-                    ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
+                        self.top_angle = self.top_angle - 5 if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
+                        ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
 
                 if not ret:
                     raise Exception()
@@ -98,6 +101,8 @@ class SubJoy(object):
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
                 traceback.print_exc()
                 logger.error(e.args)
+
+            rate.sleep()
 
         if button_r1 != 1:
             # ボタンを離したらDCモータを止める
