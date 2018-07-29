@@ -7,9 +7,14 @@ from joy_control.leg_control import DriveControl, JointControl
 from sensor_msgs.msg import Joy
 
 # loggerの設定
-from logging import getLogger, config
-config.fileConfig('logging.conf')
+from logging import getLogger, StreamHandler, DEBUG, config
+# config.fileConfig('logging.conf')
 logger = getLogger("__name__")
+handler = StreamHandler()
+handler.setLevel(DEBUG)
+logger.setLevel(DEBUG)
+logger.addHandler(handler)
+logger.propagate = False
 logger.info("START")
 
 # クラス初期化
@@ -76,6 +81,7 @@ class SubJoy(object):
             logger.debug("[L1] pushed")
             try:
                 if circle_button == 1:
+                    print("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
                     ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret

@@ -26,6 +26,7 @@ def i2c_angle_control(channel_list, angle, **param):
         duty_cycle = param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]
         pulse_width = int(4096 * duty_cycle)
         logger.info("pulse_width:{}".format(pulse_width))
+        print("angle pulse_width", pulse_width)
         for channel in channel_list:
             param["pwm"].set_pwm(channel, 0, pulse_width)
         return True
@@ -103,6 +104,7 @@ class JointControl(object):
         :param channel_list: 対象チャンネル
         :return bool:
         """
+        print("channel_list: ", channel_list)
 
         logger.debug("leg_channel_control")
         ret = True
