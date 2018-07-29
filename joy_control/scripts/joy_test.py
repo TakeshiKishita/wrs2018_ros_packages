@@ -52,18 +52,18 @@ class SubJoy(object):
             logger.debug("y_axis_right: {}".format(y_axis_right))
             try:
                 if y_axis_left >= 0.0:
-                    dc.motor_driver_control(dc.drive_channel[2:], abs(0))
-                    ret = dc.motor_driver_control(dc.back_channel[2:], abs(y_axis_left))
+                    dc.motor_driver_control(dc.drive_channel[2:], abs(y_axis_left))
+                    ret = dc.motor_driver_control(dc.back_channel[2:], abs(0))
                 elif y_axis_left < 0.0:
-                    dc.motor_driver_control(dc.back_channel[2:], abs(0))
-                    ret = dc.motor_driver_control(dc.drive_channel[2:], abs(y_axis_left))
+                    dc.motor_driver_control(dc.back_channel[2:],  abs(y_axis_left))
+                    ret = dc.motor_driver_control(dc.drive_channel[2:], abs(0))
 
                 if y_axis_right >= 0.0:
-                    dc.motor_driver_control(dc.drive_channel[:2], abs(0))
-                    ret = dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_right))
+                    dc.motor_driver_control(dc.drive_channel[:2],  abs(y_axis_right))
+                    ret = dc.motor_driver_control(dc.back_channel[:2], abs(0))
                 elif y_axis_right < 0.0:
-                    dc.motor_driver_control(dc.back_channel[:2], abs(0))
-                    ret = dc.motor_driver_control(dc.drive_channel[:2], abs(y_axis_right))
+                    dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_right))
+                    ret = dc.motor_driver_control(dc.drive_channel[:2], abs(0))
                 if not ret:
                     raise Exception()
             except Exception as e:
