@@ -24,7 +24,7 @@ def i2c_angle_control(channel_list, angle, **param):
     try:
         # パルス幅 = 4096 * デューティ比
         duty_cycle = param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]
-        pulse_width = int(4096 * duty_cycle)
+        pulse_width = int(4096 / (1000 / param["period_width"]) * duty_cycle)
         logger.info("pulse_width:{}".format(pulse_width))
         print("angle pulse_width", pulse_width)
         for channel in channel_list:
