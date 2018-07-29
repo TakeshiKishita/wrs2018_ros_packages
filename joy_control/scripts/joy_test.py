@@ -96,8 +96,8 @@ class SubJoy(object):
                         self.bottom_angle -= y_axis_right if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
                         ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
 
-                logger.debug("top_angle: {}".formt(str(self.top_angle)))
-                logger.debug("bottom_angle: {}".formt(str(self.top_angle)))
+                logger.debug("top_angle: {}".format(self.top_angle))
+                logger.debug("bottom_angle: {}".format(self.top_angle))
                 if not ret:
                     raise Exception()
             except Exception as e:
