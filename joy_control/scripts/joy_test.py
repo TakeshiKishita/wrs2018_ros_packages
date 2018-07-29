@@ -84,6 +84,8 @@ class SubJoy(object):
                 if circle_button == 1:
                     logger.debug("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
+                    self.top_angle = TOP_HOME_ANGLE
+                    self.bottom_angle = BOTTOM_HOME_ANGLE
                     ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
                 else:
@@ -94,6 +96,8 @@ class SubJoy(object):
                         self.bottom_angle -= y_axis_right if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
                         ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
 
+                logger.debug("top_angle: {}".formt(str(self.top_angle)))
+                logger.debug("bottom_angle: {}".formt(str(self.top_angle)))
                 if not ret:
                     raise Exception()
             except Exception as e:
