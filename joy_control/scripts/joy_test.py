@@ -22,8 +22,6 @@ jc = JointControl()
 dc.motor_driver_control(dc.drive_channel, abs(0))
 dc.motor_driver_control(dc.back_channel, abs(0))
 
-rate = rospy.Rate(1)
-
 TOP_MAX_ANGLE = 180
 BOTTOM_MAX_ANGLE = 90
 TOP_HOME_ANGLE = 135

@@ -107,17 +107,13 @@ class JointControl(object):
         print("channel_list: ", channel_list)
 
         logger.debug("leg_channel_control")
-        ret = True
         logger.debug("angle:{}".format(angle))
-        if self.check_angle(angle, channel_list):
-            params = {"pwm": self.pwm,
-                      "dc_min": self.dc_min,
-                      "dc_max": self.dc_max,
-                      "angle_max": self.angle_max,
-                      "period_width": self.period_width}
-            ret = i2c_angle_control(self.leg_top_channel, angle, **params) if ret else False
-        else:
-            ret = False
+        params = {"pwm": self.pwm,
+                  "dc_min": self.dc_min,
+                  "dc_max": self.dc_max,
+                  "angle_max": self.angle_max,
+                  "period_width": self.period_width}
+        ret = i2c_angle_control(self.leg_top_channel, angle, **params)
         return ret
 
     def check_angle(self, angle, channel_list):
