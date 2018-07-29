@@ -81,16 +81,16 @@ class SubJoy(object):
             logger.debug("[L1] pushed")
             try:
                 if circle_button == 1:
-                    print("[○] pushed")
+                    logger.debug("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
                     ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
                 else:
                     if abs(y_axis_right) > 0:
-                        self.top_angle = self.top_angle + 5 if (0 <= self.top_angle <= TOP_MAX_ANGLE) else self.top_angle
+                        self.top_angle = self.top_angle + y_axis_right if (0 <= self.top_angle <= TOP_MAX_ANGLE) else self.top_angle
                         ret = jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
 
-                        self.top_angle = self.top_angle - 5 if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
+                        self.top_angle = self.top_angle - y_axis_right if (0 <= self.bottom_angle <= BOTTOM_MAX_ANGLE) else self.bottom_angle
                         ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
 
                 if not ret:

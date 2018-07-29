@@ -103,7 +103,6 @@ class JointControl(object):
         :param channel_list: 対象チャンネル
         :return bool:
         """
-        print("channel_list: ", channel_list)
 
         logger.debug("leg_channel_control")
         logger.debug("angle:{}".format(angle))
@@ -112,7 +111,7 @@ class JointControl(object):
                   "dc_max": self.dc_max,
                   "angle_max": self.angle_max,
                   "period_width": self.period_width}
-        ret = i2c_angle_control(self.leg_top_channel, angle, **params)
+        ret = i2c_angle_control(channel_list, angle, **params)
         return ret
 
     def check_angle(self, angle, channel_list):
@@ -164,3 +163,21 @@ class DriveControl:
         except Exception:
             self.pwm.set_all_pwm(0, 0)
         return ret
+
+
+if __name__ == "__main__":
+    try:
+
+        jc = JointControl()
+        TOP_MAX_ANGLE = 180
+        BOTTOM_MAX_ANGLE = 90
+        TOP_HOME_ANGLE = 135
+        BOTTOM_HOME_ANGLE = 45
+        ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
+        ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
+
+    except Exception as e:
+        # 全てのPWMを初期化する
+        logger.error(e.args)
+        dc.pwm.set_all_pwm(0, 0)
+        jc.pwm.set_all_pwm(0, 0)
