@@ -15,8 +15,8 @@ logger.info("START")
 # クラス初期化
 dc = DriveControl()
 jc = JointControl()
+dc.motor_driver_control(dc.drive_channel, abs(0))
 dc.motor_driver_control(dc.back_channel, abs(0))
-dc.motor_driver_control(dc.front_channel, abs(0))
 TOP_MAX_ANGLE = 180
 BOTTOM_MAX_ANGLE = 90
 TOP_HOME_ANGLE = 135
@@ -52,18 +52,18 @@ class SubJoy(object):
             logger.debug("y_axis_right: {}".format(y_axis_right))
             try:
                 if y_axis_left >= 0.0:
-                    dc.motor_driver_control(dc.back_channel[2:], abs(0))
-                    ret = dc.motor_driver_control(dc.front_channel[2:], abs(y_axis_left))
-                elif y_axis_left < 0.0:
-                    dc.motor_driver_control(dc.front_channel[2:], abs(0))
+                    dc.motor_driver_control(dc.drive_channel[2:], abs(0))
                     ret = dc.motor_driver_control(dc.back_channel[2:], abs(y_axis_left))
+                elif y_axis_left < 0.0:
+                    dc.motor_driver_control(dc.back_channel[2:], abs(0))
+                    ret = dc.motor_driver_control(dc.drive_channel[2:], abs(y_axis_left))
 
                 if y_axis_right >= 0.0:
-                    dc.motor_driver_control(dc.back_channel[:2], abs(0))
-                    ret = dc.motor_driver_control(dc.front_channel[:2], abs(y_axis_right))
-                elif y_axis_right < 0.0:
-                    dc.motor_driver_control(dc.front_channel[:2], abs(0))
+                    dc.motor_driver_control(dc.drive_channel[:2], abs(0))
                     ret = dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_right))
+                elif y_axis_right < 0.0:
+                    dc.motor_driver_control(dc.back_channel[:2], abs(0))
+                    ret = dc.motor_driver_control(dc.drive_channel[:2], abs(y_axis_right))
                 if not ret:
                     raise Exception()
             except Exception as e:
@@ -95,8 +95,8 @@ class SubJoy(object):
 
         if button_r1 != 1:
             # ボタンを離したらDCモータを止める
+            dc.motor_driver_control(dc.drive_channel, abs(0))
             dc.motor_driver_control(dc.back_channel, abs(0))
-            dc.motor_driver_control(dc.front_channel, abs(0))
 
 
 if __name__ == "__main__":
