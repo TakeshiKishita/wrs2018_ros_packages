@@ -100,8 +100,6 @@ class SubJoy(object):
                 traceback.print_exc()
                 logger.error(e.args)
 
-            rate.sleep()
-
         if button_r1 != 1:
             # ボタンを離したらDCモータを止める
             dc.motor_driver_control(dc.drive_channel, abs(0))
