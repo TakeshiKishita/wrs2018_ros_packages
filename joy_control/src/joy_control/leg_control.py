@@ -6,6 +6,7 @@
 import Adafruit_PCA9685
 # ロガー設定
 from logging import getLogger
+
 logger = getLogger("__name__")
 
 PULSE_12bit = 4000
@@ -23,10 +24,11 @@ def i2c_angle_control(channel_list, angle, **param):
     logger.info("params :{}".format(param))
     try:
         # パルス幅の計算
-        pulse_width = int((param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]) * 4096 / (
-                1000 / param["period_width"]))
+        pulse_width = int(
+            (param["dc_min"] + (param["dc_max"] - param["dc_min"]) * angle / param["angle_max"]) * 4096 / (
+                    1000 / param["period_width"]))
         logger.info("pulse_width:{}".format(pulse_width))
-        print("angle pulse_width", pulse_width)
+        logger.debug("angle pulse_width", pulse_width)
         for channel in channel_list:
             param["pwm"].set_pwm(channel, 0, pulse_width)
         return True
@@ -58,6 +60,7 @@ class JointControl:
     """
     脚関節制御
     """
+
     def __init__(self):
         self.leg_channel = {"r_f": [0, 1],
                             "l_f": [2, 3],
@@ -166,12 +169,35 @@ class DriveControl:
 
 
 if __name__ == "__main__":
-    jc = JointControl()
     try:
         TOP_HOME_ANGLE = 135
         BOTTOM_HOME_ANGLE = 45
-        ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
-        ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
+        leg_channel = {"r_f": [0, 1],
+                       "l_f": [2, 3],
+                       "r_b": [4, 5],
+                       "l_b": [6, 7]}
+        leg_top_channel = [0, 2, 4, 6]
+        leg_bottom_channel = [1, 3, 5, 7]
+        dc_min = 0.5  # 最小パルス幅msec
+        dc_max = 2.5  # 最大パルス幅msec
+        angle_max = 180  # 最大角（最小を０とした場合）degrees
+        period_width = 50  # 周期幅Hz
+
+        pwm = Adafruit_PCA9685.PCA9685()
+        pwm.set_pwm_freq(period_width)
+
+        # パルス幅の計算
+        param = {"pwm": pwm,
+                 "dc_min": dc_min,
+                 "dc_max": dc_max,
+                 "angle_max": angle_max,
+                 "period_width": period_width}
+        pulse_width = int((param["dc_min"] + (param["dc_max"] - param["dc_min"]) * 90 / param["angle_max"]) * 4096 / (
+                1000 / param["period_width"]))
+        for channel in leg_bottom_channel:
+            param["pwm"].set_pwm(channel, 0, pulse_width)
+        for channel in leg_top_channel:
+            param["pwm"].set_pwm(channel, 0, pulse_width)
 
     except Exception as e:
         # 全てのPWMを初期化する

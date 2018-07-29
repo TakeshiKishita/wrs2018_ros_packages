@@ -80,6 +80,7 @@ class SubJoy(object):
             # 同時操作できないようelif
             logger.debug("[L1] pushed")
             try:
+                ret = True
                 if circle_button == 1:
                     logger.debug("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
