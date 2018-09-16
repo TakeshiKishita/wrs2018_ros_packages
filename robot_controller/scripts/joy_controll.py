@@ -3,7 +3,7 @@
 
 import traceback
 import rospy
-from joy_control.leg_control import DriveControl, JointControl
+from robot_controller.leg_control import DriveControl, JointControl
 from sensor_msgs.msg import Joy
 
 # loggerの設定
