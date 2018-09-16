@@ -10,4 +10,4 @@ fi
 
 # 自身IPの指定
 export ROS_IP=$1
-roslaunch robot_control joy_control.launch
+roslaunch robot_controller joy_control.launch
