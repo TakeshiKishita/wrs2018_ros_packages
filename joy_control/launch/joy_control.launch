@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="joy" name="joy_node" type="joy_node"/>
-</launch>
