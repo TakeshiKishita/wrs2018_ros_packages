@@ -8,7 +8,7 @@ from std_msgs.msg import String
 """
 
 bus = smbus.SMBus(1)  # I2C通信するためのモジュールsmbusのインスタンスを作成
-adress = 0x04  # arduinoのサンプルプログラムで設定したI2Cチャンネル
+adress = 0x10  # arduinoのサンプルプログラムで設定したI2Cチャンネル
 
 
 def callback(message):
