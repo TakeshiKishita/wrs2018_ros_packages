@@ -7,7 +7,7 @@ from std_msgs.msg import String
 ロボット側でアームコントローラの角度を受け取り、ロボットアームのArduinoへ角度を伝達する
 """
 
-bus = smbus.SMBus(1)  # I2C通信するためのモジュールsmbusのインスタンスを作成
+bus = smbus.SMBus(0)  # I2C通信するためのモジュールsmbusのインスタンスを作成
 address = 0x10  # arduinoのサンプルプログラムで設定したI2Cチャンネル
 cmd = 0x11
 
