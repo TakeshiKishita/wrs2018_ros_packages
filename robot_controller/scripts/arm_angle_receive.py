@@ -8,15 +8,18 @@ from std_msgs.msg import String
 """
 
 bus = smbus.SMBus(1)  # I2C通信するためのモジュールsmbusのインスタンスを作成
-adress = 0x10  # arduinoのサンプルプログラムで設定したI2Cチャンネル
+address = 0x10  # arduinoのサンプルプログラムで設定したI2Cチャンネル
+cmd = 0x11
 
 
 def callback(message):
-    rospy.loginfo('I heard {}'.format(message.data[:-2]))
+    msg = message.data[:-2]
+    rospy.loginfo('I heard {}'.format(msg))
 
     try:
+        angle_list = list(msg)
         # Arduinoへ文字『R』を送る、ordはアスキーコードを取得
-        bus.write_byte(adress, ord(message.data))
+        bus.write_i2c_block_data(address ,cmd, angle_list)
     except Exception as e:
         rospy.loginfo(str(e))
 
