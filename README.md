@@ -1,33 +1,66 @@
 # コントローラパッケージ
-## 導入
+ROSを使用して、PCとロボット（JETSON）を動かすためのパッケージ
+
+# 導入
+## コントローラ（PC）側設定
 ### DS4DRV
 PS4コントローラを使用するためのライブラリ
 ```bash
 sudo pip install ds4drv
 ```
-### ROSライブラリ
-ROSワークスペース作成は省略  
+  
+  
+### ROS
+ROS自体のインストールは割愛  
+ワークスペースがすでにある場合は「パッケージファイルの追加」以降から
+```bash
+cd ~
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src/
+catkin_init_workspace
+cd ~/catkin_ws
+catkin_make
+source ~/catkin_ws/devel/setup.bash
+
+# setup.bashの読み込み先の変更
+vi ~/.bashrc
+-- source /opt/ros/kinetic/setup.bash
+++ source ~/catkin_ws/devel/setup.bash
+```
+
+#### パッケージファイルの追加
 
 ROSワークスペース`/src`内にpull  
-(cloneは他パッケージがあるとできないため)
+(cloneは他ファイル、パッケージがあるとできないため)
 ```bash
-cd ~/<WORK SPACE>/src/
-git remote add origin git@gitlab.com:ojisan_and_dream/WRS2018/RasPi_code.git
+cd ~/catkin_ws/src/
+git init
+git remote add origin https://gitlab.com/ojisan_and_dream/WRS2018/ROS_packages.git
 git pull origin master
 ```
 
 catkinでビルド
 ```bash
-cd ~/<WORK SPACE>
+cd ~/catkin_ws
 catkin_make
 ```
-### Jetson TX1設定
-I2C.pyの記述を変更（ライブラリ自体を変更しているので注意）  
-この場合"BUS 0" を使用  
-```bash
-# i2c-0の権限を変更する
-sudo chmod 666 /dev/i2c-0
 
+ビルド後
+```bash
+roscd robot_controller
+```
+上記ができれば成功
+
+## ロボット側（JETSON） 設定  
+Adafruit_GPIOライブラリ自体を変更しているので注意  
+```bash
+# i2c関連のパッケージをインストール
+sudo apt install libi2c-dev i2c-tools python-smbus
+# i2cが使えるようにユーザーをグループに追加（nvidiaは任意のユーザ名で）
+sudo usermod -aG i2c nvidia
+
+# サーボドライバパッケージインストール
+sudo pip install adafruit-pca9685
 # パッケージソースの変更
 sudo vim /usr/local/lib/python2.7/dist-packages/Adafruit_GPIO/I2C.py
                                                                                                                                                                                                
@@ -35,12 +68,12 @@ sudo vim /usr/local/lib/python2.7/dist-packages/Adafruit_GPIO/I2C.py
     56   ++ return 0
 ```
 
-## 使用方法
-※ds4drvを使用前提で作成しています。
-
-
-### コントロール端末側（master）
-#### コントローラの接続
+# 使用方法
+## コントロール
+※ds4drvを使用前提で作成しています。有線でも仕組みは同じですが、  
+　ボタン配置などが変わってしまうため、現状のソースコードでは使用できません。
+### コントロール端末（PC）側【master】
+#### PS4コントローラの接続
 ```bash
 # DS4ドライバを起動
 sudo ds4drv
@@ -58,13 +91,13 @@ sudo ds4drv
 ```
 #### joyノードの実行
 ```bash
-roscd joy_control/launch
+roscd robot_controller/launch
 
 # 自身のIPアドレスを引数に指定
 sh ./launch/run_DS4.sh 192.168.xxx.xxx
 ```
 
-### ロボット側
+### ロボット（JETSON）側
 #### joy_test.pyの実行
 ```bash
 roscd joy_control/launch
