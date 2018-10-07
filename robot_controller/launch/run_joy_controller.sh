@@ -8,6 +8,13 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
+# コントローラドライバを起動して、接続を待機
+sudo ds4drv &
+while [[ ! -e /dev/input/js0 ]]; do
+  echo "Couldn't open joystick /dev/input/js0. Will retry every 10second."
+  sleep 10
+done
+
 # 自身IPの指定
 export ROS_IP=$1
-roslaunch robot_controller joy_control.launch
+roslaunch robot_controller robot_controller.launch

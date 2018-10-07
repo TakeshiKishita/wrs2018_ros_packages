@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="joy" name="joy_node" type="joy_node"/>
+    <node pkg="robot_controller" name="arm_controller" type="arm_angle_send.py"/>
+</launch>
