@@ -14,14 +14,14 @@ cmd = 0x11
 
 def callback(message):
     msg = message.data[:-2]
-    rospy.loginfo('I heard {}'.format(msg))
+    rospy.logdebug(__file__ +' callback: {}'.format(msg))
 
     try:
         angle_list = list(msg)
-        # Arduinoへ文字『R』を送る、ordはアスキーコードを取得
+        # Arduinoへ文字列を一文字ずつのリストにして送る
         bus.write_i2c_block_data(address ,cmd, angle_list)
     except Exception as e:
-        rospy.loginfo(str(e))
+        rospy.logerr(__file__ +"/ Exception: "+ str(e))
 
 
 rospy.init_node('listen_arm_angle')

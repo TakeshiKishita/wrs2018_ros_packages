@@ -4,8 +4,6 @@
 import rospy
 from std_msgs.msg import String
 import serial
-from logging import getLogger
-logger = getLogger("__name__")
 
 rospy.init_node('arm_controller')
 
@@ -18,7 +16,7 @@ while True:
                 angle_list_str = ser.readline()
                 pub.publish(angle_list_str)
                 rate.sleep()
-                rospy.loginfo(angle_list_str[:-2])
+                rospy.logdebug(__file__ +"/ angle_list_str: " + angle_list_str[:-2])
 
             ser.close()
             break
