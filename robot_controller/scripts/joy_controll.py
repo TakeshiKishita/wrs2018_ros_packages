@@ -7,12 +7,11 @@ from robot_controller.leg_control import DriveControl, JointControl
 from sensor_msgs.msg import Joy
 
 # loggerの設定
-from logging import getLogger, StreamHandler, DEBUG, config
+from logging import getLogger, StreamHandler, DEBUG, INFO, config
 # config.fileConfig('logging.conf')
 logger = getLogger("__name__")
 handler = StreamHandler()
-handler.setLevel(DEBUG)
-logger.setLevel(DEBUG)
+logger.setLevel(INFO)
 logger.addHandler(handler)
 logger.propagate = False
 logger.info("START")
@@ -50,7 +49,7 @@ class SubJoy(object):
 
         # 駆動系制御
         if button_r1 == 1:
-            logger.debug("[R1] pushed")
+            logger.info("[R1] pushed")
 
             ret = True
             logger.debug("y_axis_left: {}".format(y_axis_left))
