@@ -24,7 +24,7 @@ dc.motor_driver_control(dc.back_channel, abs(0))
 
 TOP_MAX_ANGLE = 180
 BOTTOM_MAX_ANGLE = 90
-TOP_HOME_ANGLE = 135
+TOP_HOME_ANGLE = 120
 BOTTOM_HOME_ANGLE = 45
 
 
@@ -78,28 +78,25 @@ class SubJoy(object):
         # 足関節系制御
         elif button_l1 == 1:
             # 同時操作できないようelif
-            logger.debug("[L1] pushed")
+            logger.info("[L1] pushed")
             try:
-                ret = True
                 if circle_button == 1:
-                    logger.debug("[○] pushed")
+                    logger.info("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
                     self.top_angle = TOP_HOME_ANGLE
                     self.bottom_angle = BOTTOM_HOME_ANGLE
-                    ret = jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
-                    ret = jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel) if ret else ret
+                    jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
+                    jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel)
                 else:
                     if abs(y_axis_right) > 0:
-                        self.top_angle = self.top_angle+y_axis_right if (0 < self.top_angle < TOP_MAX_ANGLE) else self.top_angle
-                        ret = jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
+                        self.top_angle = self.top_angle+y_axis_right if (0 < (self.top_angle + y_axis_right) < TOP_MAX_ANGLE) else self.top_angle
+                        jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
 
-                        self.bottom_angle = self.bottom_angle-y_axis_right if (0 < self.bottom_angle < BOTTOM_MAX_ANGLE) else self.bottom_angle
-                        ret = jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel) if ret else ret
+                        self.bottom_angle = self.bottom_angle-y_axis_right if (0 < (self.bottom_angle - y_axis_right)< BOTTOM_MAX_ANGLE) else self.bottom_angle
+                        jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
 
                 logger.debug("top_angle: {}".format(self.top_angle))
                 logger.debug("bottom_angle: {}".format(self.bottom_angle))
-                if not ret:
-                    raise Exception()
             except Exception as e:
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
                 traceback.print_exc()
