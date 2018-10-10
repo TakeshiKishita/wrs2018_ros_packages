@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import traceback
+from time import sleep
 import rospy
 from robot_controller.leg_control import DriveControl, JointControl
 from sensor_msgs.msg import Joy
@@ -30,8 +31,8 @@ BOTTOM_HOME_ANGLE = 45
 class SubJoy(object):
     def __init__(self):
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=100)
-        self.top_angle = 135
-        self.bottom_angle = 45
+        self.top_angle = TOP_HOME_ANGLE
+        self.bottom_angle = BOTTOM_HOME_ANGLE
 
     def joy_callback(self, joy_msg):
         """
@@ -40,39 +41,33 @@ class SubJoy(object):
         :return:
         """
         # 左右スティックの値取得
-        y_axis_left = joy_msg.axes[1]
-        y_axis_right = joy_msg.axes[5]
+        joy_left_y_axis = joy_msg.axes[1]
+        joy_right_y_axis = joy_msg.axes[5]
+
+        # 十字キーの値取得
+        plus_buttoon_x_axis = joy_msg.axes[9]
+        plus_buttoon_y_axis = joy_msg.axes[10]
+
         # ボタンの値取得
         button_l1 = joy_msg.buttons[4]
         button_r1 = joy_msg.buttons[5]
+        button_r2 = joy_msg.axes[4]
         circle_button = joy_msg.buttons[2]
 
         # 駆動系制御
         if button_r1 == 1:
+            # R1ボタンを押したままジョイスティックを倒すと、左右のキャタピラが回転する
             logger.info("[R1] pushed")
+            self.drive_controll(joy_left_y_axis, joy_right_y_axis)
 
-            ret = True
-            logger.debug("y_axis_left: {}".format(y_axis_left))
-            logger.debug("y_axis_right: {}".format(y_axis_right))
-            try:
-                if y_axis_left >= 0.0:
-                    dc.motor_driver_control(dc.drive_channel[2:], abs(y_axis_left))
-                    ret = dc.motor_driver_control(dc.back_channel[2:], abs(0))
-                elif y_axis_left < 0.0:
-                    dc.motor_driver_control(dc.back_channel[2:],  abs(y_axis_left))
-                    ret = dc.motor_driver_control(dc.drive_channel[2:], abs(0))
-
-                if y_axis_right >= 0.0:
-                    dc.motor_driver_control(dc.drive_channel[:2],  abs(y_axis_right))
-                    ret = dc.motor_driver_control(dc.back_channel[:2], abs(0))
-                elif y_axis_right < 0.0:
-                    dc.motor_driver_control(dc.back_channel[:2], abs(y_axis_right))
-                    ret = dc.motor_driver_control(dc.drive_channel[:2], abs(0))
-                if not ret:
-                    raise Exception()
-            except Exception as e:
-                traceback.print_exc()
-                logger.error(e.args)
+        elif button_r2 != 1:
+            # R2ボタンを押したままジョイスティックを倒すと、ゆっくり左右のキャタピラが回転する
+            max_speed_rate = 0.6
+            logger.info("[R2] pushed")
+            # 入力値の上限を超えた場合は、上限値で入力する
+            input_left = joy_left_y_axis if joy_left_y_axis < max_speed_rate else max_speed_rate
+            input_right = joy_right_y_axis if joy_right_y_axis < max_speed_rate else max_speed_rate
+            self.drive_controll(input_left, input_right)
 
         # 足関節系制御
         elif button_l1 == 1:
@@ -87,12 +82,19 @@ class SubJoy(object):
                     jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel)
                 else:
-                    if abs(y_axis_right) > 0:
-                        self.top_angle = self.top_angle+y_axis_right if (0 < (self.top_angle + y_axis_right) < TOP_MAX_ANGLE) else self.top_angle
-                        jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
+                    if abs(plus_buttoon_y_axis) > 0:
+                        # L1ボタンを押しながら十字キー上下を操作した場合、車体の脚関節が上下に動く
+                        self.leg_top_angle_controll(joy_right_y_axis)
+                        self.leg_bottom_angle_controll(joy_right_y_axis)
 
-                        self.bottom_angle = self.bottom_angle-y_axis_right if (0 < (self.bottom_angle - y_axis_right)< BOTTOM_MAX_ANGLE) else self.bottom_angle
-                        jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
+                    elif abs(plus_buttoon_x_axis) > 0:
+                        if plus_buttoon_x_axis < 0:
+                            # L1ボタンを押しながら十字キー上下を操作した場合、キャタピラが15度傾く
+                            self.leg_top_angle_controll(15)
+                        elif plus_buttoon_x_axis > 0:
+                            self.leg_top_angle_controll(-15)
+                        # 誤操入力防止のため処置待機
+                        sleep(0.5)
 
                 logger.debug("top_angle: {}".format(self.top_angle))
                 logger.debug("bottom_angle: {}".format(self.bottom_angle))
@@ -105,6 +107,56 @@ class SubJoy(object):
             # ボタンを離したらDCモータを止める
             dc.motor_driver_control(dc.drive_channel, abs(0))
             dc.motor_driver_control(dc.back_channel, abs(0))
+
+    def leg_top_angle_controll(self, add_angle):
+        """
+        脚関節上の角度制御
+        :param add_angle:
+        :return:
+        """
+        angle = self.top_angle - add_angle
+        self.top_angle = angle if (0 < angle < TOP_MAX_ANGLE) else self.top_angle
+        jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
+
+    def leg_bottom_angle_controll(self, add_angle):
+        """
+        脚関節下の角度制御
+        :param add_angle:
+        :return:
+        """
+        angle = self.bottom_angle + add_angle
+        self.bottom_angle = angle if (0 < angle < BOTTOM_MAX_ANGLE) else self.bottom_angle
+        jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
+
+    def drive_controll(self, joy_left_y_axis, joy_right_y_axis):
+        """
+        キャタピラの駆動制御
+        :param joy_left_y_axis:
+        :param joy_right_y_axis:
+        :return:
+        """
+        ret = True
+        logger.debug("joy_left_y_axis: {}".format(joy_left_y_axis))
+        logger.debug("joy_right_y_axis: {}".format(joy_right_y_axis))
+        try:
+            if joy_left_y_axis >= 0.0:
+                dc.motor_driver_control(dc.drive_channel[2:], abs(joy_left_y_axis))
+                ret = dc.motor_driver_control(dc.back_channel[2:], abs(0))
+            elif joy_left_y_axis < 0.0:
+                dc.motor_driver_control(dc.back_channel[2:], abs(joy_left_y_axis))
+                ret = dc.motor_driver_control(dc.drive_channel[2:], abs(0))
+
+            if joy_right_y_axis >= 0.0:
+                dc.motor_driver_control(dc.drive_channel[:2], abs(joy_right_y_axis))
+                ret = dc.motor_driver_control(dc.back_channel[:2], abs(0))
+            elif joy_right_y_axis < 0.0:
+                dc.motor_driver_control(dc.back_channel[:2], abs(joy_right_y_axis))
+                ret = dc.motor_driver_control(dc.drive_channel[:2], abs(0))
+            if not ret:
+                raise Exception()
+        except Exception as e:
+            traceback.print_exc()
+            logger.error(e.args)
 
 
 if __name__ == "__main__":
