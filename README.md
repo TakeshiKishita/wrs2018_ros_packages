@@ -1,16 +1,15 @@
 # コントローラパッケージ
 ROSを使用して、PCとロボット（JETSON）を動かすためのパッケージ
 
-# 導入
-## コントローラ（PC）側設定
-### DS4DRV
+### コントローラ（PC）側設定
+**DS4DRV**  
 PS4コントローラを使用するためのライブラリ
 ```bash
 sudo pip install ds4drv
 ```
   
   
-### ROS
+**ROS**  
 ROS自体のインストールは割愛  
 ワークスペースがすでにある場合は「パッケージファイルの追加」以降から
 ```bash
@@ -28,7 +27,7 @@ vi ~/.bashrc
 ++ source ~/catkin_ws/devel/setup.bash
 ```
 
-#### パッケージファイルの追加
+パッケージファイルの追加
 
 ROSワークスペース`/src`内にpull  
 (cloneは他ファイル、パッケージがあるとできないため)
@@ -51,7 +50,7 @@ roscd robot_controller
 ```
 上記ができれば成功
 
-## ロボット側（JETSON） 設定  
+### ロボット側（JETSON） 設定  
 Adafruit_GPIOライブラリ自体を変更しているので注意  
 ```bash
 # i2c関連のパッケージをインストール
@@ -69,18 +68,21 @@ sudo vim /usr/local/lib/python2.7/dist-packages/Adafruit_GPIO/I2C.py
 ```
 
 # 使用方法
-## コントロール
 ※ds4drvを使用前提で作成しています。有線でも仕組みは同じですが、  
 　ボタン配置などが変わってしまうため、現状のソースコードでは使用できません。
 ### コントロール端末（PC）側【master】
-#### PS4コントローラの接続
+**joyノードの実行**
 ```bash
-# DS4ドライバを起動
-sudo ds4drv
+roscd robot_controller/launch
+
+# 自身のIPアドレスを引数に指定
+sh ./launch/run_DS4.sh 192.168.xxx.xxx
 ```
-起動後、コントローラの"SHARE"ボタンと"PS（ホーム）"ボタンを同時に長押し  
+
+実行後、「ds4drv」も起動されるので、コントローラの"SHARE"ボタンと"PS（ホーム）"ボタンを同時に長押し  
 ライトバーが白く点滅したら離す
 下記のようなメッセージが出れば接続完了
+
 ```bash
 [info][bluetooth] Scanning for devices                                    
 [info][bluetooth] Found device 30:0E:D5:99:E6:13                          
@@ -89,16 +91,9 @@ sudo ds4drv
 [info][controller 1] Battery: 87%                                         
 [warning][controller 1] Signal strength is low (31 reports/s)
 ```
-#### joyノードの実行
-```bash
-roscd robot_controller/launch
-
-# 自身のIPアドレスを引数に指定
-sh ./launch/run_DS4.sh 192.168.xxx.xxx
-```
 
 ### ロボット（JETSON）側
-#### joy_test.pyの実行
+**joy_test.pyの実行**
 ```bash
 roscd joy_control/launch
 
@@ -107,7 +102,7 @@ sh run_joy_control.sh 192.168.yyy.yyy 192.168.xxx.xxx
 ```
 
 ## コントローラ使用メモ
-### axes
+#### axes
  0: L stick horizontal (left=+1, right=-1)  
  1: L stick vertical (up=+1, down=-1)  
  2: R stick horizontal (left=+1, right=-1)  
@@ -122,7 +117,7 @@ sh run_joy_control.sh 192.168.yyy.yyy 192.168.xxx.xxx
 11: Jyrometer Roll (手前から見て右回り：＋、左回り：ー)  
 12: Jyrometer Yaw (上から見て左回り：ー、右回り：＋)  
 13: Jyrometer Pitch (ライトバー側を上げる：ー, 下げる：＋)  
-### buttons
+#### buttons
  0: □Square  
  1: ×Cross  
  2: ○Circle  
