@@ -19,8 +19,8 @@ logger.info("START")
 # クラス初期化
 dc = DriveControl()
 jc = JointControl()
-dc.motor_driver_control(dc.drive_channel, abs(0))
-dc.motor_driver_control(dc.back_channel, abs(0))
+dc.motor_driver_control(dc.drive_channel, 0)
+dc.motor_driver_control(dc.back_channel, 0)
 
 TOP_MAX_ANGLE = 180
 BOTTOM_MAX_ANGLE = 90
@@ -77,17 +77,29 @@ class SubJoy(object):
                 if circle_button == 1:
                     logger.info("[○] pushed")
                     # ○ボタンが押された場合、ホームポジションに戻る
+
+                    # 補助のためにキャタピラを動かす
+                    direction = 1 if self.top_angle > TOP_HOME_ANGLE else 0
+                    self.suppurt_drive_controll(direction)
+                    sleep_time = abs(self.top_angle - TOP_HOME_ANGLE)*0.01
+
                     self.top_angle = TOP_HOME_ANGLE
                     self.bottom_angle = BOTTOM_HOME_ANGLE
                     jc.leg_channel_control(TOP_HOME_ANGLE, jc.leg_top_channel)
                     jc.leg_channel_control(BOTTOM_HOME_ANGLE, jc.leg_bottom_channel)
+
+                    # キャタピラ補助のためにsleep
+                    sleep(sleep_time)
                 else:
-                    if abs(plus_buttoon_y_axis) > 0:
+                    if plus_buttoon_y_axis != 0:
                         # L1ボタンを押しながら十字キー上下を操作した場合、車体の脚関節が上下に動く
                         self.leg_top_angle_controll(joy_right_y_axis)
                         self.leg_bottom_angle_controll(joy_right_y_axis)
+                        # 補助のためにキャタピラを動かす
+                        direction = 1 if plus_buttoon_y_axis > 0 else 0
+                        self.suppurt_drive_controll(direction)
 
-                    elif abs(plus_buttoon_x_axis) > 0:
+                    elif plus_buttoon_x_axis != 0:
                         if plus_buttoon_x_axis < 0:
                             # L1ボタンを押しながら十字キー上下を操作した場合、キャタピラが15度傾く
                             self.leg_top_angle_controll(15)
@@ -105,8 +117,8 @@ class SubJoy(object):
 
         if button_r1 != 1:
             # ボタンを離したらDCモータを止める
-            dc.motor_driver_control(dc.drive_channel, abs(0))
-            dc.motor_driver_control(dc.back_channel, abs(0))
+            dc.motor_driver_control(dc.drive_channel, 0)
+            dc.motor_driver_control(dc.back_channel, 0)
 
     def leg_top_angle_controll(self, add_angle):
         """
@@ -135,25 +147,46 @@ class SubJoy(object):
         :param joy_right_y_axis:
         :return:
         """
-        ret = True
         logger.debug("joy_left_y_axis: {}".format(joy_left_y_axis))
         logger.debug("joy_right_y_axis: {}".format(joy_right_y_axis))
         try:
             if joy_left_y_axis >= 0.0:
                 dc.motor_driver_control(dc.drive_channel[2:], abs(joy_left_y_axis))
-                ret = dc.motor_driver_control(dc.back_channel[2:], abs(0))
+                dc.motor_driver_control(dc.back_channel[2:], 0)
             elif joy_left_y_axis < 0.0:
                 dc.motor_driver_control(dc.back_channel[2:], abs(joy_left_y_axis))
-                ret = dc.motor_driver_control(dc.drive_channel[2:], abs(0))
+                dc.motor_driver_control(dc.drive_channel[2:], 0)
 
             if joy_right_y_axis >= 0.0:
                 dc.motor_driver_control(dc.drive_channel[:2], abs(joy_right_y_axis))
-                ret = dc.motor_driver_control(dc.back_channel[:2], abs(0))
+                dc.motor_driver_control(dc.back_channel[:2], 0)
             elif joy_right_y_axis < 0.0:
                 dc.motor_driver_control(dc.back_channel[:2], abs(joy_right_y_axis))
-                ret = dc.motor_driver_control(dc.drive_channel[:2], abs(0))
-            if not ret:
-                raise Exception()
+                dc.motor_driver_control(dc.drive_channel[:2], 0)
+        except Exception as e:
+            traceback.print_exc()
+            logger.error(e.args)
+
+    def suppurt_drive_controll(self, direction):
+        """
+        関節角度調整時のキャタピラの駆動制御
+        :param direction: 0:CLOSE, 1:OPEN
+        :return:
+        """
+        drive_speed = 0.7
+        try:
+            if direction:
+                # 開脚時
+                dc.motor_driver_control(dc.drive_channel[1, 3], drive_speed)
+                dc.motor_driver_control(dc.back_channel[1, 3], 0)
+                dc.motor_driver_control(dc.back_channel[2, 4], drive_speed)
+                dc.motor_driver_control(dc.drive_channel[2, 4], 0)
+            else:
+                # 閉じる
+                dc.motor_driver_control(dc.drive_channel[2, 4], drive_speed)
+                dc.motor_driver_control(dc.back_channel[2, 4], 0)
+                dc.motor_driver_control(dc.back_channel[1, 3], drive_speed)
+                dc.motor_driver_control(dc.drive_channel[1, 3], 0)
         except Exception as e:
             traceback.print_exc()
             logger.error(e.args)
