@@ -19,7 +19,7 @@ def callback(message):
     try:
         angle_list = list(msg)
         # Arduinoへ文字列を一文字ずつのリストにして送る
-        bus.write_i2c_block_data(address ,cmd, angle_list)
+        bus.write_i2c_block_data(address ,cmd, [int(x) for x in angle_list])
     except Exception as e:
         rospy.logerr(__file__ +"/ Exception: "+ str(e))
 
