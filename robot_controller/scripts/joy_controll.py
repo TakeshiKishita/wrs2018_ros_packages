@@ -31,8 +31,8 @@ BOTTOM_HOME_ANGLE = 45
 class SubJoy(object):
     def __init__(self):
         self._joy_sub = rospy.Subscriber('joy', Joy, self.joy_callback, queue_size=100)
-        self.top_angle = TOP_HOME_ANGLE
-        self.bottom_angle = BOTTOM_HOME_ANGLE
+        self.top_angle = 120
+        self.bottom_angle = 45
 
     def joy_callback(self, joy_msg):
         """
@@ -95,6 +95,8 @@ class SubJoy(object):
                         # L1ボタンを押しながら十字キー上下を操作した場合、車体の脚関節が上下に動く
                         self.leg_top_angle_controll(joy_right_y_axis)
                         self.leg_bottom_angle_controll(joy_right_y_axis)
+                        logger.info("top_angle: {}".format(self.top_angle))
+                        logger.info("bottom_angle: {}".format(self.bottom_angle))
                         # 補助のためにキャタピラを動かす
                         direction = 1 if plus_buttoon_y_axis > 0 else 0
                         self.suppurt_drive_controll(direction)
@@ -175,7 +177,7 @@ class SubJoy(object):
         :param direction: 0:CLOSE, 1:OPEN
         :return:
         """
-        drive_speed = 1
+        drive_speed = 0.7
         try:
             if direction:
                 # 開脚時
