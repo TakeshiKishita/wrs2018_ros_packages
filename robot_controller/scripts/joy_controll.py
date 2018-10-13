@@ -179,16 +179,16 @@ class SubJoy(object):
         try:
             if direction:
                 # 開脚時
-                dc.motor_driver_control([dc.drive_channel[1], dc.drive_channel[3]], drive_speed)
-                dc.motor_driver_control([dc.back_channel[1], dc.back_channel[3]], 0)
-                dc.motor_driver_control([dc.back_channel[2], dc.back_channel[4]], drive_speed)
-                dc.motor_driver_control([dc.drive_channel[2], dc.drive_channel[4]], 0)
-            else:
-                # 閉じる
-                dc.motor_driver_control([dc.drive_channel[2], dc.drive_channel[4]], drive_speed)
-                dc.motor_driver_control([dc.back_channel[2], dc.back_channel[4]], 0)
+                dc.motor_driver_control([dc.drive_channel[0], dc.drive_channel[2]], drive_speed)
+                dc.motor_driver_control([dc.back_channel[0], dc.back_channel[2]], 0)
                 dc.motor_driver_control([dc.back_channel[1], dc.back_channel[3]], drive_speed)
                 dc.motor_driver_control([dc.drive_channel[1], dc.drive_channel[3]], 0)
+            else:
+                # 閉じる
+                dc.motor_driver_control([dc.drive_channel[1], dc.drive_channel[3]], drive_speed)
+                dc.motor_driver_control([dc.back_channel[1], dc.back_channel[3]], 0)
+                dc.motor_driver_control([dc.back_channel[0], dc.back_channel[2]], drive_speed)
+                dc.motor_driver_control([dc.drive_channel[0], dc.drive_channel[2]], 0)
         except Exception as e:
             traceback.print_exc()
             logger.error(e.args)
