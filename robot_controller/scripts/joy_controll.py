@@ -104,11 +104,11 @@ class SubJoy(object):
                         adjustment_angle = 10
                         if plus_buttoon_x_axis < 0:
                             # L1ボタンを押しながら十字キー上下を操作した場合、キャタピラが15度傾く
-                            self.leg_top_angle_controll(adjustment_angle)
+                            self.leg_bottom_angle_controll(adjustment_angle)
                         elif plus_buttoon_x_axis > 0:
-                            self.leg_top_angle_controll(adjustment_angle*-1)
+                            self.leg_bottom_angle_controll(adjustment_angle*-1)
                         # 誤操入力防止のため処置待機
-                        # sleep(0.1)
+                        sleep(0.1)
 
             except Exception as e:
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
