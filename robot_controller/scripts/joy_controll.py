@@ -60,7 +60,7 @@ class SubJoy(object):
             logger.info("[R1] pushed")
             self.drive_controll(joy_left_y_axis, joy_right_y_axis)
 
-        elif button_r2 != 1:
+        elif button_r2 != 1.0:
             # R2ボタンを押したままジョイスティックを倒すと、ゆっくり左右のキャタピラが回転する
             max_speed_rate = 0.6
             logger.info("[R2] pushed")
@@ -108,7 +108,7 @@ class SubJoy(object):
                         elif plus_buttoon_x_axis > 0:
                             self.leg_top_angle_controll(adjustment_angle*-1)
                         # 誤操入力防止のため処置待機
-                        sleep(0.5)
+                        sleep(0.1)
 
                 logger.debug("top_angle: {}".format(self.top_angle))
                 logger.debug("bottom_angle: {}".format(self.bottom_angle))
@@ -175,20 +175,20 @@ class SubJoy(object):
         :param direction: 0:CLOSE, 1:OPEN
         :return:
         """
-        drive_speed = 0.7
+        drive_speed = 1
         try:
             if direction:
                 # 開脚時
-                dc.motor_driver_control(dc.drive_channel[1, 3], drive_speed)
-                dc.motor_driver_control(dc.back_channel[1, 3], 0)
-                dc.motor_driver_control(dc.back_channel[2, 4], drive_speed)
-                dc.motor_driver_control(dc.drive_channel[2, 4], 0)
+                dc.motor_driver_control([dc.drive_channel[1], dc.drive_channel[3]], drive_speed)
+                dc.motor_driver_control([dc.back_channel[1], dc.back_channel[3]], 0)
+                dc.motor_driver_control([dc.back_channel[2], dc.back_channel[4]], drive_speed)
+                dc.motor_driver_control([dc.drive_channel[2], dc.drive_channel[4]], 0)
             else:
                 # 閉じる
-                dc.motor_driver_control(dc.drive_channel[2, 4], drive_speed)
-                dc.motor_driver_control(dc.back_channel[2, 4], 0)
-                dc.motor_driver_control(dc.back_channel[1, 3], drive_speed)
-                dc.motor_driver_control(dc.drive_channel[1, 3], 0)
+                dc.motor_driver_control([dc.drive_channel[2], dc.drive_channel[4]], drive_speed)
+                dc.motor_driver_control([dc.back_channel[2], dc.back_channel[4]], 0)
+                dc.motor_driver_control([dc.back_channel[1], dc.back_channel[3]], drive_speed)
+                dc.motor_driver_control([dc.drive_channel[1], dc.drive_channel[3]], 0)
         except Exception as e:
             traceback.print_exc()
             logger.error(e.args)
