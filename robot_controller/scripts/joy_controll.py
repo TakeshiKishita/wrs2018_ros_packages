@@ -93,10 +93,8 @@ class SubJoy(object):
                 else:
                     if plus_buttoon_y_axis != 0:
                         # L1ボタンを押しながら十字キー上下を操作した場合、車体の脚関節が上下に動く
-                        self.leg_top_angle_controll(joy_right_y_axis)
-                        self.leg_bottom_angle_controll(joy_right_y_axis)
-                        logger.info("top_angle: {}".format(self.top_angle))
-                        logger.info("bottom_angle: {}".format(self.bottom_angle))
+                        self.leg_top_angle_controll(plus_buttoon_y_axis)
+                        self.leg_bottom_angle_controll(plus_buttoon_y_axis)
                         # 補助のためにキャタピラを動かす
                         direction = 1 if plus_buttoon_y_axis > 0 else 0
                         self.suppurt_drive_controll(direction)
@@ -112,8 +110,6 @@ class SubJoy(object):
                         # 誤操入力防止のため処置待機
                         sleep(0.1)
 
-                logger.debug("top_angle: {}".format(self.top_angle))
-                logger.debug("bottom_angle: {}".format(self.bottom_angle))
             except Exception as e:
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
                 traceback.print_exc()
