@@ -108,7 +108,7 @@ class SubJoy(object):
                         elif plus_buttoon_x_axis > 0:
                             self.leg_top_angle_controll(adjustment_angle*-1)
                         # 誤操入力防止のため処置待機
-                        sleep(0.1)
+                        # sleep(0.1)
 
             except Exception as e:
                 jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
@@ -167,13 +167,12 @@ class SubJoy(object):
             traceback.print_exc()
             logger.error(e.args)
 
-    def suppurt_drive_controll(self, direction):
+    def suppurt_drive_controll(self, direction, drive_speed=0.7):
         """
         関節角度調整時のキャタピラの駆動制御
         :param direction: 0:CLOSE, 1:OPEN
         :return:
         """
-        drive_speed = 0.7
         try:
             if direction:
                 # 開脚時
