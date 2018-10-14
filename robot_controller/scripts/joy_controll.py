@@ -104,9 +104,11 @@ class SubJoy(object):
                         adjustment_angle = 10
                         if plus_buttoon_x_axis < 0:
                             # L1ボタンを押しながら十字キー上下を操作した場合、キャタピラが15度傾く
-                            self.leg_bottom_angle_controll(adjustment_angle)
+                            self.leg_bottom_angle_controll(adjustment_angle, self.bottom_angle[:2])
+                            self.leg_bottom_angle_controll(adjustment_angle*-1, self.bottom_angle[2:])
                         elif plus_buttoon_x_axis > 0:
-                            self.leg_bottom_angle_controll(adjustment_angle*-1)
+                            self.leg_bottom_angle_controll(adjustment_angle*-1, self.bottom_angle[:2])
+                            self.leg_bottom_angle_controll(adjustment_angle, self.bottom_angle[2:])
                         # 誤操入力防止のため処置待機
                         sleep(0.1)
 
@@ -130,7 +132,7 @@ class SubJoy(object):
         self.top_angle = angle if (0 < angle < TOP_MAX_ANGLE) else self.top_angle
         jc.leg_channel_control(self.top_angle, jc.leg_top_channel)
 
-    def leg_bottom_angle_controll(self, add_angle):
+    def leg_bottom_angle_controll(self, add_angle, channel=jc.leg_bottom_channel):
         """
         脚関節下の角度制御
         :param add_angle:
@@ -138,7 +140,7 @@ class SubJoy(object):
         """
         angle = self.bottom_angle + add_angle
         self.bottom_angle = angle if (0 < angle < BOTTOM_MAX_ANGLE) else self.bottom_angle
-        jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
+        jc.leg_channel_control(self.bottom_angle, channel)
 
     def drive_controll(self, joy_left_y_axis, joy_right_y_axis):
         """
