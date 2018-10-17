@@ -9,7 +9,7 @@ if [ $# -ne 1 ]; then
 fi
 
 # コントローラドライバを起動して、接続を待機
-sudo ds4drv &
+#sudo ds4drv &
 while [[ ! -e /dev/input/js0 ]]; do
   echo "Couldn't open joystick /dev/input/js0. Will retry every 10second."
   sleep 10
