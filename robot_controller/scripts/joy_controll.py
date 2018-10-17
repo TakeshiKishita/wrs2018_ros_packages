@@ -45,8 +45,8 @@ class SubJoy(object):
         joy_right_y_axis = joy_msg.axes[4]
 
         # 十字キーの値取得
-        plus_buttoon_x_axis = joy_msg.axes[6]
-        plus_buttoon_y_axis = joy_msg.axes[7]
+        plus_button_x_axis = joy_msg.axes[6]
+        plus_button_y_axis = joy_msg.axes[7]
 
         # ボタンの値取得
         button_l1 = joy_msg.buttons[4]
@@ -91,29 +91,30 @@ class SubJoy(object):
                     # キャタピラ補助のためにsleep
                     sleep(sleep_time)
                 else:
-                    if plus_buttoon_y_axis != 0:
+                    if plus_button_y_axis != 0:
                         # L1ボタンを押しながら十字キー上下を操作した場合、車体の脚関節が上下に動く
-                        self.leg_top_angle_controll(plus_buttoon_y_axis)
-                        self.leg_bottom_angle_controll(plus_buttoon_y_axis)
+                        self.leg_top_angle_controll(plus_button_y_axis)
+                        self.leg_bottom_angle_controll(plus_button_y_axis)
                         # 補助のためにキャタピラを動かす
-                        direction = 1 if plus_buttoon_y_axis > 0 else 0
+                        direction = 1 if plus_button_y_axis > 0 else 0
                         self.suppurt_drive_controll(direction)
 
-                    elif plus_buttoon_x_axis != 0:
+                    elif plus_button_x_axis != 0:
                         # つま先上げ調整角度
                         adjustment_angle = 10
-                        if plus_buttoon_x_axis < 0:
+                        if plus_button_x_axis < 0:
                             # L1ボタンを押しながら十字キー上下を操作した場合、キャタピラが15度傾く
-                            self.leg_bottom_angle_controll(adjustment_angle, self.bottom_angle[:2])
-                            self.leg_bottom_angle_controll(adjustment_angle*-1, self.bottom_angle[2:])
-                        elif plus_buttoon_x_axis > 0:
-                            self.leg_bottom_angle_controll(adjustment_angle*-1, self.bottom_angle[:2])
-                            self.leg_bottom_angle_controll(adjustment_angle, self.bottom_angle[2:])
+                            self.leg_bottom_angle_controll(adjustment_angle, jc.leg_bottom_channel[:2])
+                            self.leg_bottom_angle_controll(adjustment_angle*-1, jc.leg_bottom_channel[2:])
+                        elif plus_button_x_axis > 0:
+                            self.leg_bottom_angle_controll(adjustment_angle*-1, jc.leg_bottom_channel[:2])
+                            self.leg_bottom_angle_controll(adjustment_angle, jc.leg_bottom_channel[2:])
                         # 誤操入力防止のため処置待機
                         sleep(0.1)
+                        logger.info("関節 上: {}".format(self.top_angle - TOP_HOME_ANGLE))
+                        logger.info("関節 下: {}".format(self.bottom_angle - BOTTOM_HOME_ANGLE))
 
             except Exception as e:
-                jc.leg_channel_control(self.bottom_angle, jc.leg_bottom_channel)
                 traceback.print_exc()
                 logger.error(e.args)
 
