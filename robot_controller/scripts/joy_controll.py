@@ -42,17 +42,17 @@ class SubJoy(object):
         """
         # 左右スティックの値取得
         joy_left_y_axis = joy_msg.axes[1]
-        joy_right_y_axis = joy_msg.axes[5]
+        joy_right_y_axis = joy_msg.axes[4]
 
         # 十字キーの値取得
-        plus_buttoon_x_axis = joy_msg.axes[9]
-        plus_buttoon_y_axis = joy_msg.axes[10]
+        plus_buttoon_x_axis = joy_msg.axes[6]
+        plus_buttoon_y_axis = joy_msg.axes[7]
 
         # ボタンの値取得
         button_l1 = joy_msg.buttons[4]
         button_r1 = joy_msg.buttons[5]
-        button_r2 = joy_msg.axes[4]
-        circle_button = joy_msg.buttons[2]
+        button_r2 = joy_msg.axes[5]
+        circle_button = joy_msg.buttons[3]
 
         # 駆動系制御
         if button_r1 == 1:
