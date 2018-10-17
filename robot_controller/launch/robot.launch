@@ -1,0 +1,25 @@
+<launch>
+    <node pkg="robot_controller" name="joy_control" type="joy_controll.py"/>
+
+    <group ns="camera_0">
+        <node pkg="usb_camera" name="camera0" type="usb_camera_node">
+          <param name="device" type="string" value="/dev/video0"/>
+          <param name="width" type="int" value="640"/>
+          <param name="height" type="int" value="480"/>
+          <param name="pixel_format" value="yuyv"/>
+          <param name="camera_frame_id" value="usb_cam"/>
+          <param name="frame_id" value="camera_0"/>
+        </node>
+    </group>
+
+    <group ns="camera_1">
+        <node pkg="usb_camera" name="camera1" type="usb_camera_node">
+          <param name="device" type="string" value="/dev/video1"/>
+          <param name="width" type="int" value="640"/>
+          <param name="height" type="int" value="480"/>
+          <param name="pixel_format" value="yuyv"/>
+          <param name="camera_frame_id" value="usb_cam"/>
+          <param name="frame_id" value="camera_1"/>
+        </node>
+    </group>
+</launch>
