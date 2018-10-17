@@ -52,7 +52,7 @@ class SubJoy(object):
         button_l1 = joy_msg.buttons[4]
         button_r1 = joy_msg.buttons[5]
         button_r2 = joy_msg.axes[5]
-        circle_button = joy_msg.buttons[3]
+        circle_button = joy_msg.buttons[1]
 
         # 駆動系制御
         if button_r1 == 1:
