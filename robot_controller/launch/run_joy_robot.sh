@@ -13,4 +13,4 @@ export ROS_IP=$1
 # master側のIPを指定
 export ROS_MASTER_URI=http://$2:11311
 # コントロールスクリプトの実行
-rosrun robot_controller joy_controll.py
+roslaunch robot_controller robot.launch
